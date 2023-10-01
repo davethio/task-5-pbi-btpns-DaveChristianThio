@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"net/http"
-
 	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
@@ -15,7 +14,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			if err == http.ErrNoCookie {
 				response := map[string]string{"message": "Unauthorized"}
 				helpers.JSONResponse(c, http.StatusUnauthorized, response)
-				c.Abort() // Abort the middleware chain
+				c.Abort() 
 				return
 			}
 		}
@@ -36,12 +35,12 @@ func JWTMiddleware() gin.HandlerFunc {
 				case ve.Errors&jwt.ValidationErrorExpired != 0:
 					response := map[string]string{"message": "Unauthorized"}
 					helpers.JSONResponse(c, http.StatusUnauthorized, response)
-					c.Abort() // Abort the middleware chain
+					c.Abort() 
 					return
 				default:
 					response := map[string]string{"message": "Unauthorized"}
 					helpers.JSONResponse(c, http.StatusUnauthorized, response)
-					c.Abort() // Abort the middleware chain
+					c.Abort() 
 					return
 				}
 			}
@@ -50,20 +49,13 @@ func JWTMiddleware() gin.HandlerFunc {
 		if !tokenObj.Valid {
 			response := map[string]string{"message": "Unauthorized"}
 			helpers.JSONResponse(c, http.StatusUnauthorized, response)
-			c.Abort() // Abort the middleware chain
+			c.Abort() 
 			return
 		}
 
-		// Access the UserID from the claims
-		userID := claims.UserID // Replace "UserID" with the actual claim name
+		userID := claims.Username 
 
-		// Now, you can use the userID in your middleware or pass it to the next handler
-		// For example, you can set it in the Gin context for later use
 		c.Set("userID", userID)
-
-		// Your JWT validation logic here, e.g., check if the token is valid
-		// If the token is valid, you can proceed to the next middleware/handler
 		c.Next()
 	}
 }
-

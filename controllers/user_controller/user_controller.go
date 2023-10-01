@@ -14,43 +14,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func IndexUser(c *gin.Context) {
-	var users []models.User
-
-	// Fetch users from the database
-	if err := database.DB.Preload("Photos").Find(&users).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
-		return
-	}
-
-	c.JSON(http.StatusOK, users)
-}
-
-func ShowUser(c *gin.Context) {
-	var users []models.User
-	id := c.Param("id")
-
-	if err := database.DB.First(&users, id).Error; err != nil {
-		switch err {
-		case gorm.ErrRecordNotFound:
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Data not found"})
-			return
-		default:
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
-			return
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": users})
-}
-
-
-
-// RegisterUser handles user registration
 func RegisterUser(c *gin.Context) {
-	// Implement user registration logic here
-	// Validate input, create user, save to database, and respond
-
 	var userInput models.User
 	if err := c.ShouldBindJSON(&userInput); err != nil {
 		response := map[string]string{"message": err.Error()}
@@ -58,7 +22,7 @@ func RegisterUser(c *gin.Context) {
 		return
 	}
 
-	// Hash the password with bcrypt
+	// Hash the password
 	hashPassword, err := bcrypt.GenerateFromPassword([]byte(userInput.Password), bcrypt.DefaultCost)
 	if err != nil {
 		response := map[string]string{"message": err.Error()}
@@ -78,10 +42,7 @@ func RegisterUser(c *gin.Context) {
 	helpers.JSONResponse(c, http.StatusOK, response)
 }
 
-// LoginUser handles user login
 func LoginUser(c *gin.Context) {
-	// Implement user login logic here
-	// Validate input, verify credentials, generate JWT token, and respond
 
 	var userInput models.User
 	if err := c.ShouldBindJSON(&userInput); err != nil {
@@ -142,16 +103,14 @@ func LoginUser(c *gin.Context) {
 
 }
 
-func Logout(c *gin.Context){
+func Logout(c *gin.Context) {
 	c.SetCookie("token", "", -1, "/", "", false, true)
 
 	response := map[string]string{"message": "Logout successful"}
 	helpers.JSONResponse(c, http.StatusOK, response)
 }
 
-// UpdateUser allows users to update their profile
 func UpdateUser(c *gin.Context) {
-	// Get the user ID from the request parameters
 	id := c.Param("id")
 
 	// Check if the user exists
@@ -161,7 +120,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if database.DB.Model(&users).Where("id = ?", id).Updates(&users).RowsAffected == 0{
+	if database.DB.Model(&users).Where("id = ?", id).Updates(&users).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Cannot update user"})
 		return
 	}
@@ -169,11 +128,8 @@ func UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Data successfully updated"})
 }
 
-// DeleteUser allows users to delete their account
 func DeleteUser(c *gin.Context) {
 	var user models.User
-
-	// Parse the userId from the request URL parameters
 	userId := c.Param("id")
 
 	// Check if the userId is a valid integer
@@ -198,4 +154,3 @@ func DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "User successfully deleted"})
 }
-

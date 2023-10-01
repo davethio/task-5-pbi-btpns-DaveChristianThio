@@ -10,14 +10,10 @@ import (
 )
 
 func main() {
-
 	// Inisialize Gin router
 	r := gin.Default()
 	database.ConnectDatabase()
-
 	router.SetupRouter(r)
-
-	// Port to use
 	port := 8080
 
 	// Run server Gin
