@@ -8,5 +8,6 @@ var JWT_KEY = []byte("an7cryu9q85n89032ncl1awjqbpzc")
 
 type JWTClaim struct {
 	Username string
+	UserID int64
 	jwt.RegisteredClaims
 }

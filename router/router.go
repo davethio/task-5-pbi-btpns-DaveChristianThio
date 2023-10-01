@@ -1,8 +1,8 @@
 package router
 
 import (
-	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/controllers/user_controller"
-	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/controllers/photo_controller"
+	photocontroller "github.com/davethio/task-5-pbi-btpns-DaveChristianThio/controllers/photo_controller"
+	usercontroller "github.com/davethio/task-5-pbi-btpns-DaveChristianThio/controllers/user_controller"
 
 	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/middlewares"
 	"github.com/gin-gonic/gin"

@@ -6,20 +6,41 @@ import (
 
 	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/database"
 	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/helpers"
+
+	// "github.com/davethio/task-5-pbi-btpns-DaveChristianThio/middlewares"
 	"github.com/davethio/task-5-pbi-btpns-DaveChristianThio/models"
 	"github.com/gin-gonic/gin"
+	// "gorm.io/gorm"
 )
 
 func GetPhotos(c *gin.Context) {
-	var photo []models.Photo
+	// var photo []models.Photo
 
-	// Fetch users from the database
-	if err := database.DB.Find(&photo).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+	// // Fetch users from the database
+	// if err := database.DB.Preload("Users").Find(&photo).Error; err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+	// 	return
+	// }
+
+	// c.JSON(http.StatusOK, photo)
+
+	var photos []models.Photo
+	userID := c.MustGet("userID").(int64)
+
+	// if !exists {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "UserID not found in context"})
+	// 	return
+	// }
+
+	// Fetch photos from the database for the specific UserID
+	if err := database.DB.Preload("Users").Where("user_id = ?", userID).Find(&photos).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch photos"})
 		return
 	}
-
-	c.JSON(http.StatusOK, photo)
+	userIDStr := strconv.FormatInt(userID, 10)
+	response := map[string]string{"message": userIDStr}
+	helpers.JSONResponse(c, http.StatusOK, response)
+	c.JSON(http.StatusOK, photos)
 }
 
 func CreatePhoto(c *gin.Context) {
@@ -44,8 +65,7 @@ func UpdatePhoto(c *gin.Context) {
 	// Check permissions, validate input, update photo data, and respond
 
 	// Get the user ID from the request parameters
-	id := c.Param("id")
-
+	id := c.Param("photoId")
 	// Check if the user exists
 	var photo models.Photo
 	if err := c.ShouldBindJSON(&photo); err != nil {
@@ -53,7 +73,7 @@ func UpdatePhoto(c *gin.Context) {
 		return
 	}
 
-	if database.DB.Model(&photo).Where("id = ?", id).Updates(&photo).RowsAffected == 0{
+	if database.DB.Model(&photo).Where("id = ?", id).Updates(&photo).RowsAffected == 0 {
 		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"message": "Cannot update photo"})
 		return
 	}
@@ -66,7 +86,7 @@ func DeletePhoto(c *gin.Context) {
 	var photo models.Photo
 
 	// Parse the photo from the request URL parameters
-	userPhoto := c.Param("id")
+	userPhoto := c.Param("photoId")
 
 	// Check if the photo is a valid integer
 	id, err := strconv.ParseInt(userPhoto, 10, 64)

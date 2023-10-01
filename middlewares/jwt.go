@@ -20,7 +20,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		stringToken := token // Corrected line
+		stringToken := token
 
 		claims := &helpers.JWTClaim{}
 
@@ -54,9 +54,16 @@ func JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Your JWT validation logic here, e.g., check if the token is valid
+		// Access the UserID from the claims
+		userID := claims.UserID // Replace "UserID" with the actual claim name
 
+		// Now, you can use the userID in your middleware or pass it to the next handler
+		// For example, you can set it in the Gin context for later use
+		c.Set("userID", userID)
+
+		// Your JWT validation logic here, e.g., check if the token is valid
 		// If the token is valid, you can proceed to the next middleware/handler
 		c.Next()
 	}
 }
+
